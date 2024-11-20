@@ -1,4 +1,4 @@
-package com.ozyegin.carRental;
+package com.ozyegin.carRental.model;
 
 public class Service {
     private int id;
