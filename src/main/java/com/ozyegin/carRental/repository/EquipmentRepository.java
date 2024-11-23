@@ -1,5 +1,11 @@
 package com.ozyegin.carRental.repository;
 
-public class EquipmentRepository {
+import java.util.Optional;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.ozyegin.carRental.model.Equipment;
+
+public interface EquipmentRepository extends JpaRepository<Equipment, Integer> {
+    Optional<Equipment> findById(Integer id);
 }
