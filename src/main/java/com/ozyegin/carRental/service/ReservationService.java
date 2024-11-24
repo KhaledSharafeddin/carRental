@@ -5,13 +5,14 @@ import com.ozyegin.carRental.model.Equipment;
 import com.ozyegin.carRental.model.Location;
 import com.ozyegin.carRental.model.Member;
 import com.ozyegin.carRental.model.Reservation;
-import com.ozyegin.carRental.model.Service;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.repository.EquipmentRepository;
 import com.ozyegin.carRental.repository.LocationRepository;
 import com.ozyegin.carRental.repository.MemberRepository;
 import com.ozyegin.carRental.repository.ReservationRepository;
 import com.ozyegin.carRental.repository.ServiceRepository;
+import org.springframework.stereotype.Service;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -41,10 +42,6 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
     
-    public ReservationService(ReservationRepository reservationRepository, EquipmentRepository equipmentRepository) {
-        this.reservationRepository = reservationRepository;
-        this.equipmentRepository = equipmentRepository;
-    }
 
 
     public Reservation makeReservation(
@@ -126,7 +123,7 @@ public class ReservationService {
         return true;  // Successfully added the service
     }
     
-
+    // Add Equipment To Reservation
     public boolean addEquipmentToReservation(String reservationNumber, Long equipmentId) {
         // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
@@ -148,6 +145,67 @@ public class ReservationService {
         reservationRepository.save(reservation);
 
         return true; // Successfully added the equipment
+    }
+
+    // Return car
+    public String returnCar(String reservationNumber, int mileage) {
+        // 1. Find the reservation by its number
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        // 2. Find the associated car
+        Car car = reservation.getCar();
+
+        // 3. Update car mileage and status
+        car.setMileage(car.getMileage() + mileage);
+        car.setStatus("AVAILABLE");
+
+        // 4. Mark the reservation as completed
+        reservation.setStatus("COMPLETED");
+
+        // 5. Save updates
+        carRepository.save(car);
+        reservationRepository.save(reservation);
+
+        return "Car returned successfully";
+    }
+
+    // Cancel Reservation
+    public String cancelReservation(String reservationNumber) {
+        // 1. Find the reservation by its number
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        // 2. Update reservation status to 'CANCELLED'
+        reservation.setStatus("CANCELLED");
+
+        // 3. Update car status to 'AVAILABLE' if it was reserved
+        Car car = reservation.getCar();
+        if ("RESERVED".equals(car.getStatus())) {
+            car.setStatus("AVAILABLE");
+            carRepository.save(car);
+        }
+
+        // 4. Save updated reservation
+        reservationRepository.save(reservation);
+
+        return "Reservation cancelled successfully";
+    }
+    // Delete Reservation
+    public String deleteReservation(String reservationNumber) {
+        // 1. Find the reservation by its number
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        // 2. Check if the reservation's status is 'CANCELLED'
+        if (!"CANCELLED".equals(reservation.getStatus())) {
+            throw new IllegalStateException("Reservation cannot be deleted unless its status is 'CANCELLED'");
+        }
+
+        // 3. Delete the reservation
+        reservationRepository.delete(reservation);
+
+        return "Reservation deleted successfully";
     }
 
     private String generateReservationNumber() {

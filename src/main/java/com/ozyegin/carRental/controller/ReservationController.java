@@ -3,6 +3,7 @@ package com.ozyegin.carRental.controller;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -79,6 +80,48 @@ public class ReservationController {
             return ResponseEntity.status(404).body(e.getMessage()); // Reservation or equipment not found
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while adding the equipment");
+        }
+    }
+
+    // method to return car
+    @PostMapping("/{reservationNumber}/return")
+    public ResponseEntity<String> returnCar(
+            @PathVariable String reservationNumber,
+            @RequestParam int mileage) {
+
+        try {
+            String message = reservationService.returnCar(reservationNumber, mileage);
+            return ResponseEntity.ok(message); // 200 OK with confirmation message
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage()); // 404 Not Found if reservation is missing
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while returning the car");
+        }
+    }
+    // cancel reservation
+    @PostMapping("/{reservationNumber}/cancel")
+    public ResponseEntity<String> cancelReservation(@PathVariable String reservationNumber) {
+        try {
+            String message = reservationService.cancelReservation(reservationNumber);
+            return ResponseEntity.ok(message); // 200 OK with confirmation message
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage()); // 404 Not Found if reservation is missing
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while cancelling the reservation");
+        }
+    }
+    // delete reservation
+    @DeleteMapping("/{reservationNumber}")
+    public ResponseEntity<String> deleteReservation(@PathVariable String reservationNumber) {
+        try {
+            String message = reservationService.deleteReservation(reservationNumber);
+            return ResponseEntity.ok(message); // 200 OK with confirmation message
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(404).body(e.getMessage()); // 404 Not Found if reservation is missing
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(400).body(e.getMessage()); // 400 Bad Request if reservation's status is not 'CANCELLED'
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("An error occurred while deleting the reservation");
         }
     }
 }
