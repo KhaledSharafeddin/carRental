@@ -4,14 +4,24 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Location {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     
-    private String code, name, address;
+    
+    private String code;
+    private String name;
+    private String address;
+
+    @OneToOne(mappedBy = "pickUpLocation")
+    private Reservation pickUpReservation;
+
+    @OneToOne(mappedBy = "dropOffLocation")
+    private Reservation dropOffReservation;
 
     public int getId() {
         return id;

@@ -2,21 +2,28 @@ package com.ozyegin.carRental.model;
 
 import java.util.Date;
 
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 public class Reservation {
+    @Id
+    @GeneratedValue(strategy=GenerationType.IDENTITY)
     private String reservationNumber;
     
     private String status;
     
     private Date creation, date, pickupDate, dropOffDate;
     
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "pickup_location_id")
     private Location pickupLocation;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "dropoff_location_id")
     private Location dropOffLocation;
     
@@ -24,12 +31,14 @@ public class Reservation {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "car_id")
     private Car car;
 
+    @OneToMany
     private Equipment[] equipment;
 
+    @OneToMany
     private Service[] service;
 
     public String getReservationNumber() {

@@ -1,5 +1,9 @@
 package com.ozyegin.carRental.repository;
 
-public class MemberRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import com.ozyegin.carRental.model.Member;
+
+public interface MemberRepository extends JpaRepository<Member, Integer> {
 
 }

@@ -8,18 +8,19 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 
 @Entity
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    
+    private Integer id;
+
     private String barcode, licensePlate, brand, model, transmissionType, type, status;
     private int passengerCapacity, mileage;
     private  double dailyPrice;
 
-    @OneToMany(mappedBy = "Car", cascade = CascadeType.PERSIST)
+    @OneToOne(mappedBy = "Car", cascade = CascadeType.PERSIST)
     private List<Reservation> reservations;
 
     public String getBarcode() {

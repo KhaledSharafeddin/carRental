@@ -14,7 +14,7 @@ import jakarta.persistence.OneToMany;
 public class Member {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Integer id;
     
     private String name, address, email, phone, drivingLicense;
 
