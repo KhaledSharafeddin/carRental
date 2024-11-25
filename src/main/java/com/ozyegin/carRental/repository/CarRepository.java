@@ -20,6 +20,4 @@ public interface CarRepository extends JpaRepository<Car, Integer> {
 
     // Find cars with status LOANED or RESERVED
     List<Car> findByStatusIn(List<String> statuses);
-
-    
 }

@@ -41,7 +41,6 @@ public class ReservationService {
         this.serviceRepository = serviceRepository;
         this.reservationRepository = reservationRepository;
     }
-    
 
 
     public Reservation makeReservation(
@@ -122,7 +121,7 @@ public class ReservationService {
 
         return true;  // Successfully added the service
     }
-    
+
     // Add Equipment To Reservation
     public boolean addEquipmentToReservation(String reservationNumber, Long equipmentId) {
         // 1. Find the reservation by its number
@@ -210,5 +209,8 @@ public class ReservationService {
 
     private String generateReservationNumber() {
         return String.format("%08d", (int) (Math.random() * 100000000));
+    }
+    }
+        return null;
     }
 }
