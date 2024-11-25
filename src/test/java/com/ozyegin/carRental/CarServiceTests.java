@@ -1,6 +1,7 @@
 package com.ozyegin.carRental;
 
 import com.ozyegin.carRental.model.Car;
+import com.ozyegin.carRental.model.Reservation;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.repository.ReservationRepository;
 import com.ozyegin.carRental.service.CarService;
@@ -49,8 +50,8 @@ public class CarServiceTests {
     @Test
     void testGetAllRentedCars() {
         Car car = new Car();
-        car.setBrand("Toyota");
-        car.setModel("Corolla");
+        car.setBrand("Mercedes");
+        car.setModel("Maybach");
         car.setStatus("LOANED");
 
         when(carRepository.findByStatusIn(List.of("LOANED", "RESERVED")))
@@ -64,32 +65,32 @@ public class CarServiceTests {
     @Test
     void testDeleteCar() {
         Car car = new Car();
-        car.setBarcode("CATMeow");
+        car.setBarcode("999999");
 
-        when(carRepository.findByBarCode("123ABC")).thenReturn(Optional.of(car));
-        when(reservationRepository.findByCar_BarcodeAndStatusIn("123ABC", List.of("ACTIVE", "RESERVED", "LOANED")))
+        when(carRepository.findByBarCode("999999")).thenReturn(Optional.of(car));
+        when(reservationRepository.findByCar_BarcodeAndStatusIn("999999", List.of("ACTIVE", "RESERVED", "LOANED")))
                 .thenReturn(Collections.emptyList());
 
-        String result = carService.deleteCar("123ABC");
+        String result = carService.deleteCar("999999");
         assertEquals("Car deleted successfully", result);
     }
 
     @Test
     void testDeleteCarWithActiveReservations() {
         Car car = new Car();
-        car.setBarcode("123ABC");
+        car.setBarcode("999999");
 
-        when(carRepository.findByBarCode("123ABC")).thenReturn(Optional.of(car));
-        when(reservationRepository.findByCar_BarcodeAndStatusIn("123ABC", List.of("ACTIVE", "RESERVED", "LOANED")))
-                .thenReturn(Collections.singletonList(new Object())); // Mocking an active reservation
+        when(carRepository.findByBarCode("999999")).thenReturn(Optional.of(car));
+        when(reservationRepository.findByCar_BarcodeAndStatusIn("999999", List.of("ACTIVE", "RESERVED", "LOANED")))
+                .thenReturn(Collections.singletonList(new Reservation()));
 
-        assertThrows(IllegalStateException.class, () -> carService.deleteCar("123ABC"));
+        assertThrows(IllegalStateException.class, () -> carService.deleteCar("999999"));
     }
 
     @Test
     void testDeleteCarNotFound() {
-        when(carRepository.findByBarCode("123ABC")).thenReturn(Optional.empty());
+        when(carRepository.findByBarCode("999999")).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> carService.deleteCar("123ABC"));
+        assertThrows(IllegalArgumentException.class, () -> carService.deleteCar("999999"));
     }
 }

@@ -5,6 +5,7 @@ import com.ozyegin.carRental.model.Equipment;
 import com.ozyegin.carRental.model.Location;
 import com.ozyegin.carRental.model.Member;
 import com.ozyegin.carRental.model.Reservation;
+import com.ozyegin.carRental.model.Service;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.repository.EquipmentRepository;
 import com.ozyegin.carRental.repository.LocationRepository;
@@ -13,8 +14,7 @@ import com.ozyegin.carRental.repository.ReservationRepository;
 import com.ozyegin.carRental.repository.ServiceRepository;
 import org.springframework.stereotype.Service;
 
-
-import java.time.LocalDateTime;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -42,15 +42,18 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
-
     public Reservation makeReservation(
             String carBarcode,
             Integer dayCount,
-            Long memberId,
+            Integer memberId,
             String pickupLocationCode,
             String dropoffLocationCode,
-            List<Long> equipmentIds,
-            List<Long> serviceIds) {
+            List<Integer> equipmentIds,
+            List<Integer> serviceIds,
+            Date reservationDate,
+            Date pickUpDate,
+            Date dropOffDate)
+    {
 
         // 1. Check if the car is available
         Car car = carRepository.findByBarcodeAndStatus(carBarcode, "AVAILABLE")
@@ -67,7 +70,7 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid dropoff location"));
 
         List<Equipment> equipment = equipmentIds != null ? equipmentRepository.findAllById(equipmentIds) : List.of();
-        List<Service> services = serviceIds != null ? serviceRepository.findAllById(serviceIds) : List.of();
+        List<CarRentalService> services = serviceIds != null ? serviceRepository.findAllById(serviceIds) : List.of();
 
         // 3. Calculate the total amount
         double equipmentCost = equipment.stream().mapToDouble(Equipment::getPrice).sum();
@@ -77,16 +80,16 @@ public class ReservationService {
         // 4. Create reservation
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(generateReservationNumber()); // Unique 8-digit number
-        reservation.setCreationDate(LocalDateTime.now());
-        reservation.setPickupDateTime(LocalDateTime.now().plusDays(1));
-        reservation.setDropoffDateTime(LocalDateTime.now().plusDays(1 + dayCount));
+        reservation.setCreation(reservationDate);
+        reservation.setPickupDate(pickUpDate);
+        reservation.setDropOffDate(dropOffDate);
         reservation.setPickupLocation(pickupLocation);
-        reservation.setDropoffLocation(dropoffLocation);
+        reservation.setDropOffLocation(dropoffLocation);
         reservation.setStatus("ACTIVE");
         reservation.setCar(car);
         reservation.setMember(member);
         reservation.setEquipment(equipment);
-        reservation.setServices(services);
+        reservation.setService(services);
 
         // 5. Update the car's status to 'LOANED'
         car.setStatus("LOANED");
@@ -99,7 +102,7 @@ public class ReservationService {
     }
 
     // method to add additional service to a reservation
-    public boolean addServiceToReservation(String reservationNumber, Long serviceId) {
+    public boolean addServiceToReservation(String reservationNumber, Integer serviceId) {
         // Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
@@ -123,7 +126,7 @@ public class ReservationService {
     }
 
     // Add Equipment To Reservation
-    public boolean addEquipmentToReservation(String reservationNumber, Long equipmentId) {
+    public boolean addEquipmentToReservation(String reservationNumber, Integer equipmentId) {
         // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
@@ -190,6 +193,7 @@ public class ReservationService {
 
         return "Reservation cancelled successfully";
     }
+
     // Delete Reservation
     public String deleteReservation(String reservationNumber) {
         // 1. Find the reservation by its number
@@ -209,8 +213,5 @@ public class ReservationService {
 
     private String generateReservationNumber() {
         return String.format("%08d", (int) (Math.random() * 100000000));
-    }
-    }
-        return null;
     }
 }

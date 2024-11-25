@@ -2,6 +2,7 @@ package com.ozyegin.carRental.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 
 import org.hibernate.sql.ast.tree.from.MappedByTableGroup;
 
@@ -43,10 +44,10 @@ public class Reservation {
     private Car car;
 
     @OneToMany(mappedBy="reservations")
-    private ArrayList<Equipment> equipment = new ArrayList<>();
+    private List<Equipment> equipment = new ArrayList<>();
 
     @OneToMany(mappedBy="reservations")
-    private ArrayList<Service> service = new ArrayList<>();
+    private List<Service> service = new ArrayList<>();
 
     public String getReservationNumber() {
         return reservationNumber;
@@ -128,19 +129,21 @@ public class Reservation {
         this.car = car;
     }
 
-    public ArrayList<Equipment> getEquipment() {
+    public List<Equipment> getEquipment() {
         return equipment;
     }
 
-    public void setEquipment(ArrayList<Equipment> equipment) {
+    public void setEquipment(List<Equipment> equipment) {
         this.equipment = equipment;
     }
 
-    public ArrayList<Service> getService() {
+    public List<Service> getService() {
         return service;
     }
 
-    public void setService(ArrayList<Service> service) {
+    public void setService(List<Service> service) {
         this.service = service;
     }
+
+
 }
