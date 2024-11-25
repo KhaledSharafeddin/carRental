@@ -1,7 +1,11 @@
 package com.ozyegin.carRental.model;
 
+import java.util.ArrayList;
 import java.util.Date;
 
+import org.hibernate.sql.ast.tree.from.MappedByTableGroup;
+
+import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -9,7 +13,10 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
 
+@Entity
+@Table(name = "TBL_RESERVATION")//ADD TO OTHERS
 public class Reservation {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
@@ -35,11 +42,11 @@ public class Reservation {
     @JoinColumn(name = "car_id")
     private Car car;
 
-    @OneToMany
-    private Equipment[] equipment;
+    @OneToMany(mappedBy="reservations")
+    private ArrayList<Equipment> equipment = new ArrayList<>();
 
-    @OneToMany
-    private Service[] service;
+    @OneToMany(mappedBy="reservations")
+    private ArrayList<Service> service = new ArrayList<>();
 
     public String getReservationNumber() {
         return reservationNumber;
@@ -121,19 +128,19 @@ public class Reservation {
         this.car = car;
     }
 
-    public Equipment[] getEquipment() {
+    public ArrayList<Equipment> getEquipment() {
         return equipment;
     }
 
-    public void setEquipment(Equipment[] equipment) {
+    public void setEquipment(ArrayList<Equipment> equipment) {
         this.equipment = equipment;
     }
 
-    public Service[] getService() {
+    public ArrayList<Service> getService() {
         return service;
     }
 
-    public void setService(Service[] service) {
+    public void setService(ArrayList<Service> service) {
         this.service = service;
     }
 }

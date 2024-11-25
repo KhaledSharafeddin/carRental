@@ -1,5 +1,8 @@
 package com.ozyegin.carRental.model;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -16,7 +19,7 @@ public class Service {
     private double price;
 
     @ManyToOne
-    private Reservation reservation;
+    private List <Reservation> reservations = new ArrayList<>();
 
     public double getPrice() {
         return price;

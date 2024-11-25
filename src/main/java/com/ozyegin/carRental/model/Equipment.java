@@ -1,15 +1,12 @@
 package com.ozyegin.carRental.model;
 
 import java.util.ArrayList;
-import java.util.List;
 
-import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 
 @Entity
 public class Equipment {
@@ -21,7 +18,7 @@ public class Equipment {
     private double price;
     
     @ManyToOne
-    private List<Reservation> reservations = new ArrayList<>();
+    private ArrayList<Reservation> reservations = new ArrayList<>();
 
     public int getId() {
         return id;

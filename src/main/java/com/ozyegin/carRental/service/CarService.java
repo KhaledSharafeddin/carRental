@@ -2,10 +2,11 @@ package com.ozyegin.carRental.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.repository.ReservationRepository;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CarService {
@@ -33,7 +34,7 @@ public class CarService {
     // Delete a Car
     public String deleteCar(String carBarcode) {
         // 1. Check if the car exists
-        Car car = carRepository.findByBarcode(carBarcode)
+        Car car = carRepository.findByBarCode(carBarcode)
                 .orElseThrow(() -> new IllegalArgumentException("Car not found"));
 
         // 2. Check for active reservations
