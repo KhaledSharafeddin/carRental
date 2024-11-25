@@ -43,11 +43,11 @@ git clone https://github.com/yourusername/car-rental-system.git
 cd car-rental-system
 
 ### 3. Configure the Database
-# Make sure MySQL is running.
-# Create a database named car_rental_db:
+Make sure MySQL is running.
+Create a database named car_rental_db:
 CREATE DATABASE car_rental_db;
 
-# Update the application.properties file with your MySQL credentials:
+### Update the application.properties file with your MySQL credentials:
 spring.datasource.url=jdbc:mysql://localhost:3306/car_rental_db
 spring.datasource.username=your-username
 spring.datasource.password=your-password
@@ -56,7 +56,7 @@ spring.datasource.password=your-password
 # Start the application using Gradle:
 ./gradlew bootRun
 
-# The application will be accessible at:
+### The application will be accessible at:
 http://localhost:8080
 
 ### 5. Test the APIs
@@ -87,12 +87,12 @@ http://localhost:8080
 
 ## Testing
 
-# Unit Tests:
-# All service methods are tested using JUnit and Mockito.
+### Unit Tests:
+### All service methods are tested using JUnit and Mockito.
 ./gradlew test
 
-# Integration Tests:
-# Tests for API endpoints are provided using Spring Boot's MockMvc.
+## Integration Tests:
+### Tests for API endpoints are provided using Spring Boot's MockMvc.
 
 ---
 
