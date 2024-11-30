@@ -1,7 +1,5 @@
 package com.ozyegin.carRental.controller;
-
 import java.util.List;
-
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,19 +7,15 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.service.CarService;
-
 @RestController
 @RequestMapping("/api/cars")
 public class CarController {
     private final CarService carService;
-
     public CarController(CarService carService) {
         this.carService = carService;
     }
-
     @GetMapping("/available")
     public ResponseEntity<List<Car>> searchAvailableCars(
         @RequestParam String carType,
@@ -34,7 +28,6 @@ public class CarController {
         }
         return ResponseEntity.status(200).build();
     }
-
     @GetMapping("/rented")
     public ResponseEntity<List<Car>> getAllRentedCars() {
         List<Car> rentedCars = carService.getAllRentedCars();
@@ -43,7 +36,6 @@ public class CarController {
         }
         return ResponseEntity.ok(rentedCars);
     }
-
     @DeleteMapping("/{carBarcode}")
     public ResponseEntity<String> deleteCar(@PathVariable String carBarcode) {
         try {
