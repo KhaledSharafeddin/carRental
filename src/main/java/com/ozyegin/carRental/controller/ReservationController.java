@@ -1,5 +1,6 @@
 package com.ozyegin.carRental.controller;
 
+import java.util.Date;
 import java.util.List;
 
 import org.springframework.http.ResponseEntity;
@@ -23,31 +24,34 @@ public class ReservationController {
         this.reservationService = reservationService;
     }
 
-    @PostMapping
-    public ResponseEntity<?> makeReservation(
-            @RequestParam String carBarcode,
-            @RequestParam Integer dayCount,
-            @RequestParam Long memberId,
-            @RequestParam String pickupLocationCode,
-            @RequestParam String dropoffLocationCode,
-            @RequestParam(required = false) List<Long> equipmentIds,
-            @RequestParam(required = false) List<Long> serviceIds
-    ) {
-        try {
-            Reservation reservation = reservationService.makeReservation(
-                    carBarcode, dayCount, memberId, pickupLocationCode, dropoffLocationCode, equipmentIds, serviceIds);
-            return ResponseEntity.ok(reservation); // 200 OK
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(206).body("Car not available"); // 206 Not Acceptable
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.badRequest().body(e.getMessage()); // 400 Bad Request
-        }
+ @PostMapping
+public ResponseEntity<?> makeReservation(
+        @RequestParam String carBarcode,
+        @RequestParam Integer dayCount,
+        @RequestParam Integer memberId,
+        @RequestParam String pickupLocationCode,
+        @RequestParam String dropoffLocationCode,
+        @RequestParam(required = false) List<Integer> equipmentIds,
+        @RequestParam(required = false) List<Integer> serviceIds,
+        @RequestParam Date reservationDate,
+        @RequestParam Date pickUpDate,
+        @RequestParam Date dropOffDate
+ ) {
+    try {
+        Reservation reservation = reservationService.makeReservation(
+                carBarcode, dayCount, memberId, pickupLocationCode, dropoffLocationCode, equipmentIds, serviceIds, reservationDate, pickUpDate, dropOffDate);
+        return ResponseEntity.ok(reservation);
+    } catch (IllegalStateException e) {
+        return ResponseEntity.status(206).body("Car not available");
+    } catch (IllegalArgumentException e) {
+        return ResponseEntity.badRequest().body(e.getMessage());
+    }
     }
 
     @PostMapping("/{reservationNumber}/services")
     public ResponseEntity<String> addAdditionalService(
             @PathVariable String reservationNumber,
-            @RequestParam Long serviceId) {
+            @RequestParam Integer serviceId) {
 
         try {
             boolean isServiceAdded = reservationService.addServiceToReservation(reservationNumber, serviceId);
@@ -57,7 +61,7 @@ public class ReservationController {
                 return ResponseEntity.status(400).body("Service already added to the reservation");
             }
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(e.getMessage()); // Reservation or service not found
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while adding the service");
         }
@@ -67,7 +71,7 @@ public class ReservationController {
     @PostMapping("/{reservationNumber}/equipment")
     public ResponseEntity<String> addAdditionalEquipment(
             @PathVariable String reservationNumber,
-            @RequestParam Long equipmentId) {
+            @RequestParam Integer equipmentId) {
 
         try {
             boolean isEquipmentAdded = reservationService.addEquipmentToReservation(reservationNumber, equipmentId);

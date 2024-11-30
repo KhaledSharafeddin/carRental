@@ -28,12 +28,10 @@ public class CarController {
         @RequestParam String transmissionType
     ) {
         List<Car> availableCars = carService.searchAvailableCars(carType, transmissionType);
-        
-        // If there are no available cars
+
         if(availableCars.isEmpty()) { 
             return ResponseEntity.status(404).build();
         }
-        // else, there are available cars
         return ResponseEntity.status(200).build();
     }
 
@@ -41,20 +39,20 @@ public class CarController {
     public ResponseEntity<List<Car>> getAllRentedCars() {
         List<Car> rentedCars = carService.getAllRentedCars();
         if (rentedCars.isEmpty()) {
-            return ResponseEntity.status(404).build(); // 404 if no rented cars found
+            return ResponseEntity.status(404).build();
         }
-        return ResponseEntity.ok(rentedCars); // 200 OK with list of rented cars
+        return ResponseEntity.ok(rentedCars);
     }
 
     @DeleteMapping("/{carBarcode}")
     public ResponseEntity<String> deleteCar(@PathVariable String carBarcode) {
         try {
             String message = carService.deleteCar(carBarcode);
-            return ResponseEntity.ok(message); // 200 OK with confirmation message
+            return ResponseEntity.ok(message);
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.status(404).body(e.getMessage()); // 404 Not Found if car is missing
+            return ResponseEntity.status(404).body(e.getMessage());
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(400).body(e.getMessage()); // 400 Bad Request if car has active reservations
+            return ResponseEntity.status(400).body(e.getMessage());
         } catch (Exception e) {
             return ResponseEntity.status(500).body("An error occurred while deleting the car");
         }

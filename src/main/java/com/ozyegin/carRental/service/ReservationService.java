@@ -1,11 +1,9 @@
 package com.ozyegin.carRental.service;
-
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.model.Equipment;
 import com.ozyegin.carRental.model.Location;
 import com.ozyegin.carRental.model.Member;
 import com.ozyegin.carRental.model.Reservation;
-import com.ozyegin.carRental.model.Service;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.repository.EquipmentRepository;
 import com.ozyegin.carRental.repository.LocationRepository;
@@ -27,9 +25,7 @@ public class ReservationService {
     private final ServiceRepository serviceRepository;
     private final ReservationRepository reservationRepository;
 
-    public ReservationService(
-            CarRepository carRepository,
-            MemberRepository memberRepository,
+    public ReservationService(CarRepository carRepository, MemberRepository memberRepository,
             LocationRepository locationRepository,
             EquipmentRepository equipmentRepository,
             ServiceRepository serviceRepository,
@@ -54,12 +50,9 @@ public class ReservationService {
             Date pickUpDate,
             Date dropOffDate)
     {
-
-        // 1. Check if the car is available
         Car car = carRepository.findByBarcodeAndStatus(carBarcode, "AVAILABLE")
                 .orElseThrow(() -> new IllegalStateException("Car not available"));
 
-        // 2. Retrieve member, locations, services, and equipment
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
 
@@ -70,16 +63,22 @@ public class ReservationService {
                 .orElseThrow(() -> new IllegalArgumentException("Invalid dropoff location"));
 
         List<Equipment> equipment = equipmentIds != null ? equipmentRepository.findAllById(equipmentIds) : List.of();
-        List<CarRentalService> services = serviceIds != null ? serviceRepository.findAllById(serviceIds) : List.of();
+        List<com.ozyegin.carRental.model.Service> services = serviceIds != null ? serviceRepository.findAllById(serviceIds) : List.of();
 
-        // 3. Calculate the total amount
-        double equipmentCost = equipment.stream().mapToDouble(Equipment::getPrice).sum();
-        double serviceCost = services.stream().mapToDouble(Service::getPrice).sum();
-        double totalAmount = dayCount * car.getDailyPrice() + equipmentCost + serviceCost;
+        double equipmentCost = 0;
+        for (Equipment eq : equipment) {
+            equipmentCost += eq.getPrice();
+        }
 
-        // 4. Create reservation
+        double serviceCost = 0;
+        for (com.ozyegin.carRental.model.Service srv : services) {
+            serviceCost += srv.getPrice();
+        }
+
+        double totalAmount = (dayCount * car.getDailyPrice()) + equipmentCost + serviceCost;
+
         Reservation reservation = new Reservation();
-        reservation.setReservationNumber(generateReservationNumber()); // Unique 8-digit number
+        reservation.setReservationNumber(generateReservationNumber());
         reservation.setCreation(reservationDate);
         reservation.setPickupDate(pickUpDate);
         reservation.setDropOffDate(dropOffDate);
@@ -91,81 +90,60 @@ public class ReservationService {
         reservation.setEquipment(equipment);
         reservation.setService(services);
 
-        // 5. Update the car's status to 'LOANED'
         car.setStatus("LOANED");
 
-        // 6. Save reservation and car
         reservationRepository.save(reservation);
         carRepository.save(car);
 
         return reservation;
     }
 
-    // method to add additional service to a reservation
     public boolean addServiceToReservation(String reservationNumber, Integer serviceId) {
-        // Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        // Find the service by its ID
-        Service service = serviceRepository.findById(serviceId)
+        Service service = (Service) serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
 
-        // Check if the service is already added to the reservation
-        if (reservation.getServices().contains(service)) {
-            return false;  // Service already added
+        if (reservation.getService().contains(service)) {
+            return false;
         }
+        reservation.getService().add((com.ozyegin.carRental.model.Service) service);
 
-        // Add the service to the reservation
-        reservation.getServices().add(service);
-
-        // Save the updated reservation
         reservationRepository.save(reservation);
 
-        return true;  // Successfully added the service
+        return true;
     }
 
-    // Add Equipment To Reservation
     public boolean addEquipmentToReservation(String reservationNumber, Integer equipmentId) {
-        // 1. Find the reservation by its number
+
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        // 2. Find the equipment by its ID
         Equipment equipment = equipmentRepository.findById(equipmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Equipment not found"));
 
-        // 3. Check if the equipment is already added to the reservation
         if (reservation.getEquipment().contains(equipment)) {
-            return false; // Equipment is already added
+            return false;
         }
-
-        // 4. Add the equipment to the reservation
         reservation.getEquipment().add(equipment);
 
-        // 5. Save the updated reservation
         reservationRepository.save(reservation);
 
-        return true; // Successfully added the equipment
+        return true;
     }
-
-    // Return car
     public String returnCar(String reservationNumber, int mileage) {
-        // 1. Find the reservation by its number
+
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        // 2. Find the associated car
         Car car = reservation.getCar();
 
-        // 3. Update car mileage and status
         car.setMileage(car.getMileage() + mileage);
         car.setStatus("AVAILABLE");
 
-        // 4. Mark the reservation as completed
         reservation.setStatus("COMPLETED");
 
-        // 5. Save updates
         carRepository.save(car);
         reservationRepository.save(reservation);
 
@@ -178,17 +156,14 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        // 2. Update reservation status to 'CANCELLED'
         reservation.setStatus("CANCELLED");
 
-        // 3. Update car status to 'AVAILABLE' if it was reserved
         Car car = reservation.getCar();
         if ("RESERVED".equals(car.getStatus())) {
             car.setStatus("AVAILABLE");
             carRepository.save(car);
         }
 
-        // 4. Save updated reservation
         reservationRepository.save(reservation);
 
         return "Reservation cancelled successfully";
@@ -200,12 +175,10 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        // 2. Check if the reservation's status is 'CANCELLED'
         if (!"CANCELLED".equals(reservation.getStatus())) {
             throw new IllegalStateException("Reservation cannot be deleted unless its status is 'CANCELLED'");
         }
 
-        // 3. Delete the reservation
         reservationRepository.delete(reservation);
 
         return "Reservation deleted successfully";

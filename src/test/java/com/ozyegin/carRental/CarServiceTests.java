@@ -1,5 +1,4 @@
 package com.ozyegin.carRental;
-
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.model.Reservation;
 import com.ozyegin.carRental.repository.CarRepository;
@@ -17,7 +16,6 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.when;
-
 public class CarServiceTests {
     private CarRepository carRepository;
     private ReservationRepository reservationRepository;
@@ -61,7 +59,6 @@ public class CarServiceTests {
         assertEquals(1, rentedCars.size());
         assertEquals("Toyota", rentedCars.get(0).getBrand());
     }
-
     @Test
     void testDeleteCar() {
         Car car = new Car();
@@ -74,7 +71,6 @@ public class CarServiceTests {
         String result = carService.deleteCar("999999");
         assertEquals("Car deleted successfully", result);
     }
-
     @Test
     void testDeleteCarWithActiveReservations() {
         Car car = new Car();
@@ -86,7 +82,6 @@ public class CarServiceTests {
 
         assertThrows(IllegalStateException.class, () -> carService.deleteCar("999999"));
     }
-
     @Test
     void testDeleteCarNotFound() {
         when(carRepository.findByBarCode("999999")).thenReturn(Optional.empty());
