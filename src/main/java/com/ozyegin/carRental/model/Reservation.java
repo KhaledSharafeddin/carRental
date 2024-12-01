@@ -17,7 +17,7 @@ import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "TBL_RESERVATION")//ADD TO OTHERS
+@Table(name = "TBL_RESERVATION")
 public class Reservation {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
