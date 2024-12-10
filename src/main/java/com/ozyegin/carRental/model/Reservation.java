@@ -4,42 +4,44 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import jakarta.persistence.*;
 import org.hibernate.sql.ast.tree.from.MappedByTableGroup;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
-
 @Entity
-@Table(name = "TBL_RESERVATION")
+@Table(name = "reservations")
 public class Reservation {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
     private String reservationNumber;
+    private Date creation;
+    private Date pickupDate;
+    private Date dropOffDate;
     private String status;
-    private Date creation, date, pickupDate, dropOffDate;
-    @OneToOne
-    @JoinColumn(name = "pickup_location_id")
-    private Location pickupLocation;
-    @OneToOne
-    @JoinColumn(name = "dropoff_location_id")
-    private Location dropOffLocation;
+
+    @ManyToOne
+    @JoinColumn(name = "car_id")
+    private Car car;
+
     @ManyToOne
     @JoinColumn(name = "member_id")
     private Member member;
-    @OneToOne
-    @JoinColumn(name = "car_id")
-    private Car car;
-    @OneToMany(mappedBy="reservations")
+
+    @ManyToMany
+    @JoinTable(
+            name = "reservation_equipment",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "equipment_id")
+    )
     private List<Equipment> equipment = new ArrayList<>();
-    @OneToMany(mappedBy="reservations")
-    private List<Service> service = new ArrayList<>();
+
+    @ManyToMany
+    @JoinTable(
+            name = "reservation_service",
+            joinColumns = @JoinColumn(name = "reservation_id"),
+            inverseJoinColumns = @JoinColumn(name = "service_id")
+    )
+    private List<Service> services = new ArrayList<>();
 
     public String getReservationNumber() {
         return reservationNumber;
