@@ -5,31 +5,46 @@ import com.ozyegin.carRental.repository.*;
 import com.ozyegin.carRental.service.ReservationService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
+
 import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 
-
+@SpringBootTest
+@ActiveProfiles("test")
 public class ReservationServiceTest {
 
+    @Autowired
     private ReservationService reservationService;
+
+    @Autowired
     private CarRepository carRepository;
+
+    @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
     private LocationRepository locationRepository;
+
+    @Autowired
     private EquipmentRepository equipmentRepository;
+
+    @Autowired
     private ServiceRepository serviceRepository;
+
+    @Autowired
     private ReservationRepository reservationRepository;
 
     @BeforeEach
     void setUp() {
-        carRepository = Mockito.mock(CarRepository.class);
-        memberRepository = Mockito.mock(MemberRepository.class);
-        locationRepository = Mockito.mock(LocationRepository.class);
-        equipmentRepository = Mockito.mock(EquipmentRepository.class);
-        serviceRepository = Mockito.mock(ServiceRepository.class);
-        reservationRepository = Mockito.mock(ReservationRepository.class);
-        reservationService = new ReservationService(carRepository, memberRepository, locationRepository, equipmentRepository, serviceRepository, reservationRepository);
+        carRepository.deleteAll();
+        memberRepository.deleteAll();
+        locationRepository.deleteAll();
+        equipmentRepository.deleteAll();
+        serviceRepository.deleteAll();
+        reservationRepository.deleteAll();
     }
 
     @Test
@@ -50,46 +65,48 @@ public class ReservationServiceTest {
         car.setBarcode(carBarcode);
         car.setStatus("AVAILABLE");
         car.setDailyPrice(100.0);
+        carRepository.save(car);
 
         Member member = new Member();
         member.setId(memberId);
+        memberRepository.save(member);
 
         Location pickupLocation = new Location();
         pickupLocation.setCode(pickupLocationCode);
+        locationRepository.save(pickupLocation);
 
         Location dropoffLocation = new Location();
         dropoffLocation.setCode(dropoffLocationCode);
+        locationRepository.save(dropoffLocation);
 
         Equipment equipment1 = new Equipment();
         equipment1.setId(1);
         equipment1.setPrice(10.0);
+        equipmentRepository.save(equipment1);
 
         Equipment equipment2 = new Equipment();
         equipment2.setId(2);
         equipment2.setPrice(20.0);
+        equipmentRepository.save(equipment2);
 
         Service service1 = new Service();
         service1.setId(1);
         service1.setPrice(30.0);
+        serviceRepository.save(service1);
 
         Service service2 = new Service();
         service2.setId(2);
         service2.setPrice(40.0);
-
-        Mockito.when(carRepository.findByBarcodeAndStatus(carBarcode, "AVAILABLE")).thenReturn(Optional.of(car));
-        Mockito.when(memberRepository.findById(memberId)).thenReturn(Optional.of(member));
-        Mockito.when(locationRepository.findByCode(pickupLocationCode)).thenReturn(Optional.of(pickupLocation));
-        Mockito.when(locationRepository.findByCode(dropoffLocationCode)).thenReturn(Optional.of(dropoffLocation));
-        Mockito.when(equipmentRepository.findAllById(equipmentIds)).thenReturn(Arrays.asList(equipment1, equipment2));
-        Mockito.when(serviceRepository.findAllById(serviceIds)).thenReturn(Arrays.asList(service1, service2));
-        Mockito.when(reservationRepository.save(any(Reservation.class))).thenReturn(new Reservation());
+        serviceRepository.save(service2);
 
         Reservation reservation = reservationService.makeReservation(carBarcode, dayCount, memberId, pickupLocationCode, dropoffLocationCode, equipmentIds, serviceIds, reservationDate, pickUpDate, dropOffDate);
 
         assertNotNull(reservation);
         assertEquals("LOANED", car.getStatus());
-        Mockito.verify(carRepository).save(car);
-        Mockito.verify(reservationRepository).save(any(Reservation.class));
+        assertEquals(1, reservation.getCar().getId());
+        assertEquals(1, reservation.getMember().getId());
+        assertEquals(2, reservation.getEquipment().size());
+        assertEquals(2, reservation.getService().size());
     }
 
     @Test
@@ -100,19 +117,16 @@ public class ReservationServiceTest {
 
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(reservationNumber);
+        reservationRepository.save(reservation);
 
         Service service = new Service();
         service.setId(serviceId);
-
-        Mockito.when(reservationRepository.findByReservationNumber(reservationNumber)).thenReturn(Optional.of(reservation));
-        Mockito.when(serviceRepository.findById(serviceId)).thenReturn(Optional.of(service));
-        Mockito.when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        serviceRepository.save(service);
 
         boolean result = reservationService.addServiceToReservation(reservationNumber, serviceId);
 
         assertTrue(result);
         assertTrue(reservation.getService().contains(service));
-        Mockito.verify(reservationRepository).save(reservation);
     }
 
     @Test
@@ -122,24 +136,20 @@ public class ReservationServiceTest {
 
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(reservationNumber);
+        reservationRepository.save(reservation);
 
         Equipment equipment = new Equipment();
         equipment.setId(equipmentId);
-
-        Mockito.when(reservationRepository.findByReservationNumber(reservationNumber)).thenReturn(Optional.of(reservation));
-        Mockito.when(equipmentRepository.findById(equipmentId)).thenReturn(Optional.of(equipment));
-        Mockito.when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        equipmentRepository.save(equipment);
 
         boolean result = reservationService.addEquipmentToReservation(reservationNumber, equipmentId);
 
         assertTrue(result);
         assertTrue(reservation.getEquipment().contains(equipment));
-        Mockito.verify(reservationRepository).save(reservation);
     }
 
     @Test
     void testReturnCar() {
-
         String reservationNumber = "12345678";
         int mileage = 100;
 
@@ -149,10 +159,8 @@ public class ReservationServiceTest {
         Car car = new Car();
         car.setMileage(1000);
         reservation.setCar(car);
-
-        Mockito.when(reservationRepository.findByReservationNumber(reservationNumber)).thenReturn(Optional.of(reservation));
-        Mockito.when(carRepository.save(any(Car.class))).thenReturn(car);
-        Mockito.when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
+        reservationRepository.save(reservation);
+        carRepository.save(car);
 
         String result = reservationService.returnCar(reservationNumber, mileage);
 
@@ -160,8 +168,6 @@ public class ReservationServiceTest {
         assertEquals(1100, car.getMileage());
         assertEquals("AVAILABLE", car.getStatus());
         assertEquals("COMPLETED", reservation.getStatus());
-        Mockito.verify(carRepository).save(car);
-        Mockito.verify(reservationRepository).save(reservation);
     }
 
     @Test
@@ -174,18 +180,14 @@ public class ReservationServiceTest {
         Car car = new Car();
         car.setStatus("RESERVED");
         reservation.setCar(car);
-
-        Mockito.when(reservationRepository.findByReservationNumber(reservationNumber)).thenReturn(Optional.of(reservation));
-        Mockito.when(reservationRepository.save(any(Reservation.class))).thenReturn(reservation);
-        Mockito.when(carRepository.save(any(Car.class))).thenReturn(car);
+        reservationRepository.save(reservation);
+        carRepository.save(car);
 
         String result = reservationService.cancelReservation(reservationNumber);
 
         assertEquals("Reservation cancelled successfully", result);
         assertEquals("CANCELLED", reservation.getStatus());
         assertEquals("AVAILABLE", car.getStatus());
-        Mockito.verify(reservationRepository).save(reservation);
-        Mockito.verify(carRepository).save(car);
     }
 
     @Test
@@ -195,11 +197,11 @@ public class ReservationServiceTest {
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(reservationNumber);
         reservation.setStatus("CANCELLED");
+        reservationRepository.save(reservation);
 
-        Mockito.when(reservationRepository.findByReservationNumber(reservationNumber)).thenReturn(Optional.of(reservation));
         String result = reservationService.deleteReservation(reservationNumber);
 
         assertEquals("Reservation deleted successfully", result);
-        Mockito.verify(reservationRepository).delete(reservation);
+        assertFalse(reservationRepository.findByReservationNumber(reservationNumber).isPresent());
     }
 }

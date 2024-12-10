@@ -1,53 +1,57 @@
 package com.ozyegin.carRental;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import com.ozyegin.carRental.model.Member;
 import com.ozyegin.carRental.repository.MemberRepository;
 import com.ozyegin.carRental.service.MemberService;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 
+@SpringBootTest
+@ActiveProfiles("test")
 public class MemberServiceTest {
 
-    private MemberService memberService;
+    @Autowired
     private MemberRepository memberRepository;
+
+    @Autowired
+    private MemberService memberService;
+
     @BeforeEach
     void setUp() {
-        memberRepository = Mockito.mock(MemberRepository.class);
-        memberService = new MemberService();
+        memberRepository.deleteAll();
     }
+
     @Test
     void testCreateMember() {
         Member member = new Member();
         member.setId(1);
         member.setName("Asym Hyder");
 
-        Mockito.when(memberRepository.save(any(Member.class))).thenReturn(member);
         Member result = memberService.createMember(member);
-        Mockito.verify(memberRepository).save(any(Member.class));
 
         assertNotNull(result);
         assertEquals(1, result.getId());
         assertEquals("Asym Hyder", result.getName());
     }
+
     @Test
     void testGetMemberById() {
         Member member = new Member();
         member.setId(1);
         member.setName("Asym Hyder");
 
-        Mockito.when(memberRepository.findById(eq(1))).thenReturn(Optional.of(member));
+        memberRepository.save(member);
         Optional<Member> result = memberService.getMemberById(1);
 
-        Mockito.verify(memberRepository).findById(eq(1));
         assertTrue(result.isPresent());
         assertEquals(1, result.get().getId());
         assertEquals("Asym Hyder", result.get().getName());
@@ -63,11 +67,9 @@ public class MemberServiceTest {
         member2.setId(2);
         member2.setName("Khalid");
 
-        List<Member> members = Arrays.asList(member1, member2);
-        Mockito.when(memberRepository.findAll()).thenReturn(members);
+        memberRepository.saveAll(Arrays.asList(member1, member2));
         List<Member> result = memberService.getAllMembers();
 
-        Mockito.verify(memberRepository).findAll();
         assertEquals(2, result.size());
         assertEquals(1, result.get(0).getId());
         assertEquals("Asym Hyder", result.get(0).getName());
@@ -81,6 +83,8 @@ public class MemberServiceTest {
         existingMember.setId(1);
         existingMember.setName("Asym Hyder");
 
+        memberRepository.save(existingMember);
+
         Member updatedMember = new Member();
         updatedMember.setName("Umair");
         updatedMember.setAddress("yurdu");
@@ -88,13 +92,8 @@ public class MemberServiceTest {
         updatedMember.setPhone("905095095669");
         updatedMember.setDrivingLicense("License1234");
 
-        Mockito.when(memberRepository.findById(eq(1))).thenReturn(Optional.of(existingMember));
-        Mockito.when(memberRepository.save(any(Member.class))).thenReturn(existingMember);
-
         Member result = memberService.updateMember(1, updatedMember);
 
-        Mockito.verify(memberRepository).findById(eq(1));
-        Mockito.verify(memberRepository).save(any(Member.class));
         assertNotNull(result);
         assertEquals("Umair", result.getName());
         assertEquals("yurdu", result.getAddress());
