@@ -5,7 +5,6 @@ import java.util.Date;
 import java.util.List;
 
 import jakarta.persistence.*;
-import org.hibernate.sql.ast.tree.from.MappedByTableGroup;
 
 @Entity
 @Table(name = "reservations")
@@ -27,6 +26,14 @@ public class Reservation {
     @JoinColumn(name = "member_id")
     private Member member;
 
+    @OneToOne
+    @JoinColumn(name = "pickup_location_id")
+    private Location pickupLocation;
+
+    @OneToOne
+    @JoinColumn(name = "dropoff_location_id")
+    private Location dropOffLocation;
+
     @ManyToMany
     @JoinTable(
             name = "reservation_equipment",
@@ -43,76 +50,100 @@ public class Reservation {
     )
     private List<Service> services = new ArrayList<>();
 
+    // Getters and setters
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
     public String getReservationNumber() {
         return reservationNumber;
     }
+
     public void setReservationNumber(String reservationNumber) {
         this.reservationNumber = reservationNumber;
     }
-    public String getStatus() {
-        return status;
-    }
-    public void setStatus(String status) {
-        this.status = status;
-    }
+
     public Date getCreation() {
         return creation;
     }
+
     public void setCreation(Date creation) {
         this.creation = creation;
     }
-    public Date getDate() {
-        return date;
-    }
-    public void setDate(Date date) {
-        this.date = date;
-    }
+
     public Date getPickupDate() {
         return pickupDate;
     }
+
     public void setPickupDate(Date pickupDate) {
         this.pickupDate = pickupDate;
     }
+
     public Date getDropOffDate() {
         return dropOffDate;
     }
+
     public void setDropOffDate(Date dropOffDate) {
         this.dropOffDate = dropOffDate;
     }
-    public Location getPickupLocation() {
-        return pickupLocation;
+
+    public String getStatus() {
+        return status;
     }
-    public void setPickupLocation(Location pickupLocation) {
-        this.pickupLocation = pickupLocation;
+
+    public void setStatus(String status) {
+        this.status = status;
     }
-    public Location getDropOffLocation() {
-        return dropOffLocation;
-    }
-    public void setDropOffLocation(Location dropOffLocation) {
-        this.dropOffLocation = dropOffLocation;
-    }
-    public Member getMember() {
-        return member;
-    }
-    public void setMember(Member member) {
-        this.member = member;
-    }
+
     public Car getCar() {
         return car;
     }
+
     public void setCar(Car car) {
         this.car = car;
     }
+
+    public Member getMember() {
+        return member;
+    }
+
+    public void setMember(Member member) {
+        this.member = member;
+    }
+
+    public Location getPickupLocation() {
+        return pickupLocation;
+    }
+
+    public void setPickupLocation(Location pickupLocation) {
+        this.pickupLocation = pickupLocation;
+    }
+
+    public Location getDropOffLocation() {
+        return dropOffLocation;
+    }
+
+    public void setDropOffLocation(Location dropOffLocation) {
+        this.dropOffLocation = dropOffLocation;
+    }
+
     public List<Equipment> getEquipment() {
         return equipment;
     }
+
     public void setEquipment(List<Equipment> equipment) {
         this.equipment = equipment;
     }
-    public List<Service> getService() {
-        return service;
+
+    public List<Service> getServices() {
+        return services;
     }
-    public void setService(List<Service> service) {
-        this.service = service;
+
+    public void setServices(List<Service> services) {
+        this.services = services;
     }
 }
