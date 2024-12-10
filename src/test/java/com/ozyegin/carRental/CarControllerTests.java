@@ -1,43 +1,45 @@
 package com.ozyegin.carRental;
 
-import com.ozyegin.carRental.controller.CarController;
 import com.ozyegin.carRental.model.Car;
+import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.service.CarService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Collections;
+import java.util.List;
 
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-@WebMvcTest(CarController.class)
+@SpringBootTest
+@ActiveProfiles("test")
 public class CarControllerTests {
-    @Autowired
-    private MockMvc mockMvc;
 
-    @MockBean
+    @Autowired
     private CarService carService;
 
+    @Autowired
+    private CarRepository carRepository;
+
+    @BeforeEach
+    void setUp() {
+        carRepository.deleteAll();
+    }
+
     @Test
-    void testSearchAvailableCars() throws Exception {
+    void testSearchAvailableCars() {
         Car car = new Car();
         car.setBrand("Mercedes");
         car.setModel("Maybach");
         car.setType("Standard");
         car.setTransmissionType("Automatic");
         car.setStatus("AVAILABLE");
+        carRepository.save(car);
 
-        Mockito.when(carService.searchAvailableCars("Standard", "Automatic"))
-                .thenReturn(Collections.singletonList(car));
-
-        mockMvc.perform(get("/api/cars/available")
-                .param("carType", "Standard")
-                .param("transmissionType", "Automatic"))
-                .andExpect(status().isOk());
+        List<Car> availableCars = carService.searchAvailableCars("Standard", "Automatic");
+        assertEquals(1, availableCars.size());
+        assertEquals("Mercedes", availableCars.get(0).getBrand());
     }
 }
