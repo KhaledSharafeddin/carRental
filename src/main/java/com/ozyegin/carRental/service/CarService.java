@@ -15,13 +15,19 @@ public class CarService {
         this.carRepository = carRepository;
         this.reservationRepository = reservationRepository;
     }
+    
+    // SEARCH AVAILABLE CARS
     public List<Car> searchAvailableCars(String carType, String transmissionType) {
         return carRepository.findByCarTypeAndTransmissionTypeAndStatus(carType, transmissionType, "AVAILABLE");
     }
+
+    // GET ALL RENTED CARD
     public List<Car> getAllRentedCars() {
         List<String> rentedStatuses = List.of("LOANED", "RESERVED");
         return carRepository.findByStatusIn(rentedStatuses);
     }
+    
+    // DELETE CAR
     public String deleteCar(String carBarcode) {
         Car car = carRepository.findByBarcode(carBarcode)
                 .orElseThrow(() -> new IllegalArgumentException("Car not found"));
