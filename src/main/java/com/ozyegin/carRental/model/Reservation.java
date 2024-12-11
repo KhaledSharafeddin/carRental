@@ -18,7 +18,7 @@ public class Reservation {
     private Date dropOffDate;
     private String status;
 
-    @ManyToOne
+    @OneToOne
     @JoinColumn(name = "car_id")
     private Car car;
 

@@ -18,10 +18,10 @@ public class Service {
     private Integer id;
     private String name;
     private double price;
-    
+
     @ManyToOne
-    private List <Reservation> reservations = new ArrayList<>();
-    
+    private Reservation reservation;
+
     public double getPrice() {
         return price;
     }

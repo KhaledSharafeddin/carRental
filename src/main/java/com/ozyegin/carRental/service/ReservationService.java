@@ -88,7 +88,7 @@ public class ReservationService {
         reservation.setCar(car);
         reservation.setMember(member);
         reservation.setEquipment(equipment);
-        reservation.setService(services);
+        reservation.setServices(services);
 
         car.setStatus("LOANED");
 
@@ -105,10 +105,10 @@ public class ReservationService {
         Service service = (Service) serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
 
-        if (reservation.getService().contains(service)) {
+        if (reservation.getServices().contains(service)) {
             return false;
         }
-        reservation.getService().add((com.ozyegin.carRental.model.Service) service);
+        reservation.getServices().add((com.ozyegin.carRental.model.Service) service);
 
         reservationRepository.save(reservation);
 
