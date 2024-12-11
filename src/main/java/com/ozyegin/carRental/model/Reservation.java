@@ -18,7 +18,7 @@ public class Reservation {
     private Date dropOffDate;
     private String status;
 
-    @OneToOne
+    @ManyToOne
     @JoinColumn(name = "car_id")
     private Car car;
 
@@ -26,12 +26,12 @@ public class Reservation {
     @JoinColumn(name = "member_id")
     private Member member;
 
-    @OneToOne
-    @JoinColumn(name = "pickup_location_id")
+    @ManyToOne
+//    @JoinColumn(name = "pickup_location_id")
     private Location pickupLocation;
 
-    @OneToOne
-    @JoinColumn(name = "dropoff_location_id")
+    @ManyToOne
+//    @JoinColumn(name = "dropoff_location_id")
     private Location dropOffLocation;
 
     @ManyToMany

@@ -12,8 +12,8 @@ public class Equipment {
     private Integer id;
     private String name;
     private double price;
-    @ManyToMany(mappedBy = "equipment")
-    private List<Reservation> reservations = new ArrayList<>();
+//    @ManyToMany(mappedBy = "equipment")
+//    private List<Reservation> reservations = new ArrayList<>();
     public int getId() {
         return id;
     }

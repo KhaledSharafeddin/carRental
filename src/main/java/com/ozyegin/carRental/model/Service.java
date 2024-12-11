@@ -19,8 +19,8 @@ public class Service {
     private String name;
     private double price;
 
-    @ManyToOne
-    private Reservation reservation;
+//    @ManyToOne
+//    private Reservation reservation;
 
     public double getPrice() {
         return price;

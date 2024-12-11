@@ -11,11 +11,12 @@ public class Location {
     private String name;
     private String address;
 
-    @OneToOne(mappedBy = "pickUpLocation")
-    private Reservation pickUpReservation;
+//    @OneToOne(mappedBy = "pickUpLocation")
+//    private Reservation pickUpReservation;
+//
+//    @OneToOne(mappedBy = "dropOffLocation")
+//    private Reservation dropOffReservation;
 
-    @OneToOne(mappedBy = "dropOffLocation")
-    private Reservation dropOffReservation;
     public int getId() {
         return id;
     }

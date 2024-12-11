@@ -13,8 +13,8 @@ public class Car {
     private int passengerCapacity, mileage;
     private  double dailyPrice;
 
-    @OneToOne(mappedBy = "Car", cascade = CascadeType.PERSIST)
-    private Reservation reservation;
+//    @ManyToOne(mappedBy = "Car", cascade = CascadeType.PERSIST)
+//    private Reservation reservation;
 
     public String getBarcode() {
         return barcode;
