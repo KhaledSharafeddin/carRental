@@ -1,5 +1,4 @@
 package com.ozyegin.carRental.model;
-import java.util.ArrayList;
 
 import jakarta.persistence.*;
 
@@ -14,7 +13,8 @@ public class Car {
     private  double dailyPrice;
 
     @OneToOne(mappedBy = "Car", cascade = CascadeType.PERSIST)
-    private ArrayList<Reservation> reservations = new ArrayList<>();
+    private Reservation reservation;
+
     public String getBarcode() {
         return barcode;
     }
