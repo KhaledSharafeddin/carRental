@@ -98,6 +98,7 @@ public class ReservationService {
         return reservation;
     }
 
+    // ADD SERVICE TO RESERVATION
     public boolean addServiceToReservation(String reservationNumber, Integer serviceId) {
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
@@ -114,7 +115,7 @@ public class ReservationService {
 
         return true;
     }
-
+    // ADD EQUIPMENT TO RESERVATION
     public boolean addEquipmentToReservation(String reservationNumber, Integer equipmentId) {
 
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
@@ -132,6 +133,7 @@ public class ReservationService {
 
         return true;
     }
+    // RETURN CAR
     public String returnCar(String reservationNumber, int mileage) {
 
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
@@ -150,7 +152,7 @@ public class ReservationService {
         return "Car returned successfully";
     }
 
-    // Cancel Reservation
+    // CANCEL RESERVATION
     public String cancelReservation(String reservationNumber) {
         // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
@@ -169,7 +171,7 @@ public class ReservationService {
         return "Reservation cancelled successfully";
     }
 
-    // Delete Reservation
+    // DELETE RESERVATION
     public String deleteReservation(String reservationNumber) {
         // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
