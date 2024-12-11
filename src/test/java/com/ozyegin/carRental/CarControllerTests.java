@@ -1,5 +1,6 @@
 package com.ozyegin.carRental;
 
+import com.ozyegin.carRental.dto.CarOutputDTO;
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.repository.CarRepository;
 import com.ozyegin.carRental.service.CarService;
@@ -38,7 +39,7 @@ public class CarControllerTests {
         car.setStatus("AVAILABLE");
         carRepository.save(car);
 
-        List<Car> availableCars = carService.searchAvailableCars("Standard", "Automatic");
+        List<CarOutputDTO> availableCars = carService.searchAvailableCars("Standard", "Automatic");
         assertEquals(1, availableCars.size());
         assertEquals("Mercedes", availableCars.get(0).getBrand());
     }
