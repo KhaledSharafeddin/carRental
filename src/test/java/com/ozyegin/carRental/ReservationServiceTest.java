@@ -39,12 +39,12 @@ public class ReservationServiceTest {
 
     @BeforeEach
     void setUp() {
+        reservationRepository.deleteAll();
         carRepository.deleteAll();
         memberRepository.deleteAll();
         locationRepository.deleteAll();
         equipmentRepository.deleteAll();
         serviceRepository.deleteAll();
-        reservationRepository.deleteAll();
     }
 
     // TEST MAKE RESERVATION

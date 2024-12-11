@@ -29,8 +29,8 @@ public class CarServiceTests {
 
     @BeforeEach
     void setUp() {
-        carRepository.deleteAll();
         reservationRepository.deleteAll();
+        carRepository.deleteAll();
     }
 
     // TEST SEARCH AVAILABLE CARS

@@ -1,5 +1,6 @@
 package com.ozyegin.carRental.model;
 import java.util.ArrayList;
+import java.util.List;
 
 import jakarta.persistence.*;
 
@@ -11,8 +12,9 @@ public class Member {
     private Integer id;
     private String name, address, email, phone, drivingLicense;
 
-    @OneToMany(mappedBy = "member", cascade = CascadeType.PERSIST)
-    private ArrayList<Reservation> reservations = new ArrayList<>();
+    @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Reservation> reservations = new ArrayList<>();
+    
     public String getName() {
         return name;
     }

@@ -34,13 +34,12 @@ public class MemberServiceTest {
     @Test
     void testCreateMember() {
         Member member = new Member();
-        member.setId(1);
         member.setName("Asym Hyder");
 
         Member result = memberService.createMember(member);
 
         assertNotNull(result);
-        assertEquals(1, result.getId());
+        assertNotNull(result.getId()); // Ensure the ID is generated
         assertEquals("Asym Hyder", result.getName());
     }
 
@@ -48,14 +47,13 @@ public class MemberServiceTest {
     @Test
     void testGetMemberById() {
         Member member = new Member();
-        member.setId(1);
         member.setName("Asym Hyder");
 
-        memberRepository.save(member);
-        Optional<Member> result = memberService.getMemberById(1);
+        member = memberRepository.save(member); // Save and get the generated ID
+        Optional<Member> result = memberService.getMemberById(member.getId());
 
         assertTrue(result.isPresent());
-        assertEquals(1, result.get().getId());
+        assertEquals(member.getId(), result.get().getId());
         assertEquals("Asym Hyder", result.get().getName());
     }
 
@@ -63,20 +61,16 @@ public class MemberServiceTest {
     @Test
     void testGetAllMembers() {
         Member member1 = new Member();
-        member1.setId(1);
         member1.setName("Asym Hyder");
 
         Member member2 = new Member();
-        member2.setId(2);
         member2.setName("Khalid");
 
         memberRepository.saveAll(Arrays.asList(member1, member2));
         List<Member> result = memberService.getAllMembers();
 
         assertEquals(2, result.size());
-        assertEquals(1, result.get(0).getId());
         assertEquals("Asym Hyder", result.get(0).getName());
-        assertEquals(2, result.get(1).getId());
         assertEquals("Khalid", result.get(1).getName());
     }
 
@@ -84,10 +78,9 @@ public class MemberServiceTest {
     @Test
     void testUpdateMember() {
         Member existingMember = new Member();
-        existingMember.setId(1);
         existingMember.setName("Asym Hyder");
 
-        memberRepository.save(existingMember);
+        existingMember = memberRepository.save(existingMember); // Save and get the generated ID
 
         Member updatedMember = new Member();
         updatedMember.setName("Umair");
@@ -96,7 +89,7 @@ public class MemberServiceTest {
         updatedMember.setPhone("905095095669");
         updatedMember.setDrivingLicense("License1234");
 
-        Member result = memberService.updateMember(1, updatedMember);
+        Member result = memberService.updateMember(existingMember.getId(), updatedMember);
 
         assertNotNull(result);
         assertEquals("Umair", result.getName());
