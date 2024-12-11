@@ -8,7 +8,7 @@ public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    private String barcode, licensePlate, brand, model, transmissionType, type, status;
+    private String barcode, licensePlate, brand, model, transmissionType, carType, status;
     private int passengerCapacity, mileage;
     private  double dailyPrice;
 
@@ -45,11 +45,11 @@ public class Car {
     public void setTransmissionType(String transmissionType) {
         this.transmissionType = transmissionType;
     }
-    public String getType() {
-        return type;
+    public String getCarType() {
+        return carType;
     }
-    public void setType(String type) {
-        this.type = type;
+    public void setCarType(String type) {
+        this.carType = type;
     }
     public String getStatus() {
         return status;

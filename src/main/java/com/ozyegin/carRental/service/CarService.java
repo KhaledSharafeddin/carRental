@@ -23,7 +23,7 @@ public class CarService {
         return carRepository.findByStatusIn(rentedStatuses);
     }
     public String deleteCar(String carBarcode) {
-        Car car = carRepository.findByBarCode(carBarcode)
+        Car car = carRepository.findByBarcode(carBarcode)
                 .orElseThrow(() -> new IllegalArgumentException("Car not found"));
 
         List<String> activeStatuses = List.of("ACTIVE", "RESERVED", "LOANED");

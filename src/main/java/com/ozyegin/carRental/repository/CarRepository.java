@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.ozyegin.carRental.model.Car;
 public interface CarRepository extends JpaRepository<Car, Integer> {
     Optional<Car> findByBarcodeAndStatus(String barcode, String status);
-    Optional<Car> findByBarCode(String barcode);
+    Optional<Car> findByBarcode(String barcode);
     List<Car> findByCarTypeAndTransmissionTypeAndStatus(String carType, String transmissionType, String status);
     List<Car> findByStatusIn(List<String> statuses);
 }

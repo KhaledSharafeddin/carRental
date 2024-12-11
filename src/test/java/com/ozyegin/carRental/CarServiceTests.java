@@ -11,9 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -41,7 +39,7 @@ public class CarServiceTests {
         Car car = new Car();
         car.setBrand("Mercedes");
         car.setModel("Maybach");
-        car.setType("Standard");
+        car.setCarType("Standard");
         car.setTransmissionType("Automatic");
         car.setStatus("AVAILABLE");
         carRepository.save(car);

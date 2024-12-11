@@ -33,7 +33,7 @@ public class CarControllerTests {
         Car car = new Car();
         car.setBrand("Mercedes");
         car.setModel("Maybach");
-        car.setType("Standard");
+        car.setCarType("Standard");
         car.setTransmissionType("Automatic");
         car.setStatus("AVAILABLE");
         carRepository.save(car);
