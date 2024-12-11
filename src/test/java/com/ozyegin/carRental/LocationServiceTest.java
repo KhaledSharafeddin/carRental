@@ -26,6 +26,7 @@ public class LocationServiceTest {
         locationRepository.deleteAll();
     }
 
+    // TEST ADD LOCATION
     @Test
     void testAddLocation() {
         String locationName = "Taksim Square";

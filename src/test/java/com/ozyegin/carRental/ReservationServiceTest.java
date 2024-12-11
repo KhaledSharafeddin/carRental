@@ -47,6 +47,7 @@ public class ReservationServiceTest {
         reservationRepository.deleteAll();
     }
 
+    // TEST MAKE RESERVATION
     @Test
     void testMakeReservation() {
         // Arrange
@@ -109,6 +110,7 @@ public class ReservationServiceTest {
         assertEquals(2, reservation.getServices().size());
     }
 
+    // TEST ADD SERVICE TO RESERVATION
     @Test
     void testAddServiceToReservation() {
         // Arrange
@@ -129,6 +131,7 @@ public class ReservationServiceTest {
         assertTrue(reservation.getServices().contains(service));
     }
 
+    // TEST ADD EQIPMENT TO RESERVATION
     @Test
     void testAddEquipmentToReservation() {
         String reservationNumber = "12345678";
@@ -148,6 +151,7 @@ public class ReservationServiceTest {
         assertTrue(reservation.getEquipment().contains(equipment));
     }
 
+    // TEST RETURN CAR
     @Test
     void testReturnCar() {
         String reservationNumber = "12345678";
@@ -170,6 +174,7 @@ public class ReservationServiceTest {
         assertEquals("COMPLETED", reservation.getStatus());
     }
 
+    // TEST CANCEL RESERVATION
     @Test
     void testCancelReservation() {
         String reservationNumber = "12345678";
@@ -190,6 +195,7 @@ public class ReservationServiceTest {
         assertEquals("AVAILABLE", car.getStatus());
     }
 
+    // TEST DELETE RESERVATION
     @Test
     void testDeleteReservation() {
         String reservationNumber = "12345678";

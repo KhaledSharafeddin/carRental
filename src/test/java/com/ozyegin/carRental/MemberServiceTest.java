@@ -30,6 +30,7 @@ public class MemberServiceTest {
         memberRepository.deleteAll();
     }
 
+    // TEST CREATE MEMBER
     @Test
     void testCreateMember() {
         Member member = new Member();
@@ -43,6 +44,7 @@ public class MemberServiceTest {
         assertEquals("Asym Hyder", result.getName());
     }
 
+    // TEST GET MEMBER BY ID
     @Test
     void testGetMemberById() {
         Member member = new Member();
@@ -57,6 +59,7 @@ public class MemberServiceTest {
         assertEquals("Asym Hyder", result.get().getName());
     }
 
+    // TEST GET ALL MEMBERS
     @Test
     void testGetAllMembers() {
         Member member1 = new Member();
@@ -77,6 +80,7 @@ public class MemberServiceTest {
         assertEquals("Khalid", result.get(1).getName());
     }
 
+    // TEST UPDATE MEMBER
     @Test
     void testUpdateMember() {
         Member existingMember = new Member();
