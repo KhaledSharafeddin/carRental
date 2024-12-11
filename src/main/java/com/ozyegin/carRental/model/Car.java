@@ -1,5 +1,4 @@
 package com.ozyegin.carRental.model;
-import java.util.ArrayList;
 
 import jakarta.persistence.*;
 
