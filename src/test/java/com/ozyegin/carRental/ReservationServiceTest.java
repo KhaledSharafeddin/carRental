@@ -106,7 +106,7 @@ public class ReservationServiceTest {
         assertEquals(1, reservation.getCar().getId());
         assertEquals(1, reservation.getMember().getId());
         assertEquals(2, reservation.getEquipment().size());
-        assertEquals(2, reservation.getService().size());
+        assertEquals(2, reservation.getServices().size());
     }
 
     @Test
@@ -126,7 +126,7 @@ public class ReservationServiceTest {
         boolean result = reservationService.addServiceToReservation(reservationNumber, serviceId);
 
         assertTrue(result);
-        assertTrue(reservation.getService().contains(service));
+        assertTrue(reservation.getServices().contains(service));
     }
 
     @Test
