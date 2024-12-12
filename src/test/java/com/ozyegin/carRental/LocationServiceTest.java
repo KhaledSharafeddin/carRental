@@ -1,15 +1,16 @@
 package com.ozyegin.carRental;
 
-import com.ozyegin.carRental.model.Location;
-import com.ozyegin.carRental.repository.LocationRepository;
-import com.ozyegin.carRental.service.LocationService;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import static org.junit.jupiter.api.Assertions.*;
+import com.ozyegin.carRental.model.Location;
+import com.ozyegin.carRental.repository.LocationRepository;
+import com.ozyegin.carRental.service.LocationService;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -26,6 +27,7 @@ public class LocationServiceTest {
         locationRepository.deleteAll();
     }
 
+    // TEST ADD LOCATION
     @Test
     void testAddLocation() {
         String locationName = "Taksim Square";

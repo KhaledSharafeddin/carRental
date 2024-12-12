@@ -1,11 +1,4 @@
 package com.ozyegin.carRental.service;
-
-import com.ozyegin.carRental.dto.CarOutputDTO;
-import com.ozyegin.carRental.dto.ReservationInputDTO;
-import com.ozyegin.carRental.dto.ReservationOutputDTO;
-import com.ozyegin.carRental.dto.MemberOutputDTO;
-import com.ozyegin.carRental.dto.EquipmentOutputDTO;
-import com.ozyegin.carRental.dto.ServiceOutputDTO;
 import com.ozyegin.carRental.model.Car;
 import com.ozyegin.carRental.model.Equipment;
 import com.ozyegin.carRental.model.Location;
@@ -17,11 +10,10 @@ import com.ozyegin.carRental.repository.LocationRepository;
 import com.ozyegin.carRental.repository.MemberRepository;
 import com.ozyegin.carRental.repository.ReservationRepository;
 import com.ozyegin.carRental.repository.ServiceRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ReservationService {
@@ -33,10 +25,11 @@ public class ReservationService {
     private final ServiceRepository serviceRepository;
     private final ReservationRepository reservationRepository;
 
-    @Autowired
     public ReservationService(CarRepository carRepository, MemberRepository memberRepository,
-                              LocationRepository locationRepository, EquipmentRepository equipmentRepository,
-                              ServiceRepository serviceRepository, ReservationRepository reservationRepository) {
+            LocationRepository locationRepository,
+            EquipmentRepository equipmentRepository,
+            ServiceRepository serviceRepository,
+            ReservationRepository reservationRepository) {
         this.carRepository = carRepository;
         this.memberRepository = memberRepository;
         this.locationRepository = locationRepository;
@@ -45,31 +38,50 @@ public class ReservationService {
         this.reservationRepository = reservationRepository;
     }
 
-    public ReservationOutputDTO makeReservation(ReservationInputDTO reservationInputDTO) {
-        Car car = carRepository.findByBarcodeAndStatus(reservationInputDTO.getCarBarcode(), "AVAILABLE")
-                .orElseThrow(() -> new IllegalArgumentException("Car not available"));
+    public Reservation makeReservation(
+            String carBarcode,
+            Integer dayCount,
+            Integer memberId,
+            String pickupLocationCode,
+            String dropoffLocationCode,
+            List<Integer> equipmentIds,
+            List<Integer> serviceIds,
+            Date reservationDate,
+            Date pickUpDate,
+            Date dropOffDate)
+    {
+        Car car = carRepository.findByBarcodeAndStatus(carBarcode, "AVAILABLE")
+                .orElseThrow(() -> new IllegalStateException("Car not available"));
 
-        Member member = memberRepository.findById(reservationInputDTO.getMemberId())
-                .orElseThrow(() -> new IllegalArgumentException("Member not found"));
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
 
-        Location pickupLocation = locationRepository.findByCode(reservationInputDTO.getPickupLocationCode())
-                .orElseThrow(() -> new IllegalArgumentException("Pickup location not found"));
+        Location pickupLocation = locationRepository.findByCode(pickupLocationCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid pickup location"));
 
-        Location dropoffLocation = locationRepository.findByCode(reservationInputDTO.getDropoffLocationCode())
-                .orElseThrow(() -> new IllegalArgumentException("Dropoff location not found"));
+        Location dropoffLocation = locationRepository.findByCode(dropoffLocationCode)
+                .orElseThrow(() -> new IllegalArgumentException("Invalid dropoff location"));
 
-        List<Equipment> equipment = reservationInputDTO.getEquipmentIds() != null ? equipmentRepository.findAllById(reservationInputDTO.getEquipmentIds()) : List.of();
-        List<com.ozyegin.carRental.model.Service> services = reservationInputDTO.getServiceIds() != null ? serviceRepository.findAllById(reservationInputDTO.getServiceIds()) : List.of();
+        List<Equipment> equipment = equipmentIds != null ? equipmentRepository.findAllById(equipmentIds) : List.of();
+        List<com.ozyegin.carRental.model.Service> services = serviceIds != null ? serviceRepository.findAllById(serviceIds) : List.of();
 
-        double equipmentCost = equipment.stream().mapToDouble(Equipment::getPrice).sum();
-        double serviceCost = services.stream().mapToDouble(com.ozyegin.carRental.model.Service::getPrice).sum();
-        double totalAmount = (reservationInputDTO.getDayCount() * car.getDailyPrice()) + equipmentCost + serviceCost;
+        double equipmentCost = 0;
+        for (Equipment eq : equipment) {
+            equipmentCost += eq.getPrice();
+        }
+
+        double serviceCost = 0;
+        for (com.ozyegin.carRental.model.Service srv : services) {
+            serviceCost += srv.getPrice();
+        }
+
+        double totalAmount = (dayCount * car.getDailyPrice()) + equipmentCost + serviceCost;
 
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(generateReservationNumber());
-        reservation.setCreation(reservationInputDTO.getReservationDate());
-        reservation.setPickupDate(reservationInputDTO.getPickUpDate());
-        reservation.setDropOffDate(reservationInputDTO.getDropOffDate());
+        reservation.setCreation(reservationDate);
+        reservation.setPickupDate(pickUpDate);
+        reservation.setDropOffDate(dropOffDate);
         reservation.setPickupLocation(pickupLocation);
         reservation.setDropOffLocation(dropoffLocation);
         reservation.setStatus("ACTIVE");
@@ -83,60 +95,93 @@ public class ReservationService {
         reservationRepository.save(reservation);
         carRepository.save(car);
 
-        return mapToOutputDTO(reservation);
+        return reservation;
     }
 
-    private ReservationOutputDTO mapToOutputDTO(Reservation reservation) {
-        ReservationOutputDTO reservationOutputDTO = new ReservationOutputDTO();
-        reservationOutputDTO.setId(reservation.getId());
-        reservationOutputDTO.setReservationNumber(reservation.getReservationNumber());
-        reservationOutputDTO.setStatus(reservation.getStatus());
-        reservationOutputDTO.setCar(mapToCarOutputDTO(reservation.getCar()));
-        reservationOutputDTO.setMember(mapToMemberOutputDTO(reservation.getMember()));
-        reservationOutputDTO.setEquipment(reservation.getEquipment().stream().map(this::mapToEquipmentOutputDTO).collect(Collectors.toList()));
-        reservationOutputDTO.setServices(reservation.getServices().stream().map(this::mapToServiceOutputDTO).collect(Collectors.toList()));
-        reservationOutputDTO.setPickUpDate(reservation.getPickupDate());
-        reservationOutputDTO.setDropOffDate(reservation.getDropOffDate());
-        return reservationOutputDTO;
+    public boolean addServiceToReservation(String reservationNumber, Integer serviceId) {
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        Service service = (Service) serviceRepository.findById(serviceId)
+                .orElseThrow(() -> new IllegalArgumentException("Service not found"));
+
+        if (reservation.getServices().contains(service)) {
+            return false;
+        }
+        reservation.getServices().add((com.ozyegin.carRental.model.Service) service);
+
+        reservationRepository.save(reservation);
+
+        return true;
     }
 
-    private CarOutputDTO mapToCarOutputDTO(Car car) {
-        CarOutputDTO carOutputDTO = new CarOutputDTO();
-        carOutputDTO.setId(car.getId());
-        carOutputDTO.setBarcode(car.getBarcode());
-        carOutputDTO.setStatus(car.getStatus());
-        carOutputDTO.setDailyPrice(car.getDailyPrice());
-        carOutputDTO.setMileage(car.getMileage());
-        carOutputDTO.setCarType(car.getCarType());
-        carOutputDTO.setTransmissionType(car.getTransmissionType());
-        return carOutputDTO;
+    public boolean addEquipmentToReservation(String reservationNumber, Integer equipmentId) {
+
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        Equipment equipment = equipmentRepository.findById(equipmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Equipment not found"));
+
+        if (reservation.getEquipment().contains(equipment)) {
+            return false;
+        }
+        reservation.getEquipment().add(equipment);
+
+        reservationRepository.save(reservation);
+
+        return true;
+    }
+    public String returnCar(String reservationNumber, int mileage) {
+
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        Car car = reservation.getCar();
+
+        car.setMileage(car.getMileage() + mileage);
+        car.setStatus("AVAILABLE");
+
+        reservation.setStatus("COMPLETED");
+
+        carRepository.save(car);
+        reservationRepository.save(reservation);
+
+        return "Car returned successfully";
     }
 
-    private MemberOutputDTO mapToMemberOutputDTO(Member member) {
-        MemberOutputDTO memberOutputDTO = new MemberOutputDTO();
-        memberOutputDTO.setId(member.getId());
-        memberOutputDTO.setName(member.getName());
-        memberOutputDTO.setAddress(member.getAddress());
-        memberOutputDTO.setEmail(member.getEmail());
-        memberOutputDTO.setPhone(member.getPhone());
-        memberOutputDTO.setDrivingLicense(member.getDrivingLicense());
-        return memberOutputDTO;
+    // Cancel Reservation
+    public String cancelReservation(String reservationNumber) {
+        // 1. Find the reservation by its number
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
+
+        reservation.setStatus("CANCELLED");
+
+        Car car = reservation.getCar();
+        if ("RESERVED".equals(car.getStatus())) {
+            car.setStatus("AVAILABLE");
+            carRepository.save(car);
+        }
+
+        reservationRepository.save(reservation);
+
+        return "Reservation cancelled successfully";
     }
 
-    private EquipmentOutputDTO mapToEquipmentOutputDTO(Equipment equipment) {
-        EquipmentOutputDTO equipmentOutputDTO = new EquipmentOutputDTO();
-        equipmentOutputDTO.setId(equipment.getId());
-        equipmentOutputDTO.setName(equipment.getName());
-        equipmentOutputDTO.setPrice(equipment.getPrice());
-        return equipmentOutputDTO;
-    }
+    // Delete Reservation
+    public String deleteReservation(String reservationNumber) {
+        // 1. Find the reservation by its number
+        Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
+                .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-    private ServiceOutputDTO mapToServiceOutputDTO(com.ozyegin.carRental.model.Service service) {
-        ServiceOutputDTO serviceOutputDTO = new ServiceOutputDTO();
-        serviceOutputDTO.setId(service.getId());
-        serviceOutputDTO.setName(service.getName());
-        serviceOutputDTO.setPrice(service.getPrice());
-        return serviceOutputDTO;
+        if (!"CANCELLED".equals(reservation.getStatus())) {
+            throw new IllegalStateException("Reservation cannot be deleted unless its status is 'CANCELLED'");
+        }
+
+        reservationRepository.delete(reservation);
+
+        return "Reservation deleted successfully";
     }
 
     private String generateReservationNumber() {

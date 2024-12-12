@@ -35,7 +35,8 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.mapstruct:mapstruct:1.5.3.Final' // mapstruct
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0' // openapi
-
+//	http://localhost:8080/swagger-ui/index.html
+//	http://localhost:8080/v3/api-docs
 
 	compileOnly 'org.projectlombok:lombok'
 	runtimeOnly 'com.mysql:mysql-connector-j' //mySQL dependency

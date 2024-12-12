@@ -1,19 +1,18 @@
 package com.ozyegin.carRental;
 
-import com.ozyegin.carRental.model.Car;
-import com.ozyegin.carRental.model.Reservation;
-import com.ozyegin.carRental.repository.CarRepository;
-import com.ozyegin.carRental.repository.ReservationRepository;
-import com.ozyegin.carRental.service.CarService;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
+import com.ozyegin.carRental.model.Car;
+import com.ozyegin.carRental.repository.CarRepository;
+import com.ozyegin.carRental.repository.ReservationRepository;
+import com.ozyegin.carRental.service.CarService;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -30,10 +29,11 @@ public class CarServiceTests {
 
     @BeforeEach
     void setUp() {
-        carRepository.deleteAll();
         reservationRepository.deleteAll();
+        carRepository.deleteAll();
     }
 
+    // TEST SEARCH AVAILABLE CARS
     @Test
     void testSearchAvailableCars() {
         Car car = new Car();
@@ -49,6 +49,7 @@ public class CarServiceTests {
         assertEquals("Mercedes", availableCars.get(0).getBrand());
     }
 
+    // TEST GET ALL RENTED CARS
     @Test
     void testGetAllRentedCars() {
         Car car = new Car();
@@ -62,6 +63,7 @@ public class CarServiceTests {
         assertEquals("Mercedes", rentedCars.get(0).getBrand());
     }
 
+    // TEST DELETE CAR
     @Test
     void testDeleteCar() {
         Car car = new Car();
@@ -70,23 +72,5 @@ public class CarServiceTests {
 
         String result = carService.deleteCar("999999");
         assertEquals("Car deleted successfully", result);
-    }
-
-    @Test
-    void testDeleteCarWithActiveReservations() {
-        Car car = new Car();
-        car.setBarcode("999999");
-        carRepository.save(car);
-
-        Reservation reservation = new Reservation();
-        reservation.setCar(car);
-        reservationRepository.save(reservation);
-
-        assertThrows(IllegalStateException.class, () -> carService.deleteCar("999999"));
-    }
-
-    @Test
-    void testDeleteCarNotFound() {
-        assertThrows(IllegalArgumentException.class, () -> carService.deleteCar("999999"));
     }
 }

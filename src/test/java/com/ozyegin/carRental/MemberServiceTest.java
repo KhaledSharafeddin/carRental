@@ -1,6 +1,5 @@
 package com.ozyegin.carRental;
 
-import com.ozyegin.carRental.dto.MemberOutputDTO;
 import com.ozyegin.carRental.model.Member;
 import com.ozyegin.carRental.repository.MemberRepository;
 import com.ozyegin.carRental.service.MemberService;
@@ -37,7 +36,7 @@ public class MemberServiceTest {
         member.setId(1);
         member.setName("Asym Hyder");
 
-        MemberOutputDTO result = memberService.createMember(member);
+        Member result = memberService.createMember(member);
 
         assertNotNull(result);
         assertEquals(1, result.getId());
@@ -51,7 +50,7 @@ public class MemberServiceTest {
         member.setName("Asym Hyder");
 
         memberRepository.save(member);
-        Optional<MemberOutputDTO> result = memberService.getMemberById(1);
+        Optional<Member> result = memberService.getMemberById(1);
 
         assertTrue(result.isPresent());
         assertEquals(1, result.get().getId());
@@ -69,7 +68,7 @@ public class MemberServiceTest {
         member2.setName("Khalid");
 
         memberRepository.saveAll(Arrays.asList(member1, member2));
-        List<MemberOutputDTO> result = memberService.getAllMembers();
+        List<Member> result = memberService.getAllMembers();
 
         assertEquals(2, result.size());
         assertEquals(1, result.get(0).getId());
@@ -93,7 +92,7 @@ public class MemberServiceTest {
         updatedMember.setPhone("905095095669");
         updatedMember.setDrivingLicense("License1234");
 
-        MemberOutputDTO result = memberService.updateMember(1, updatedMember);
+        Member result = memberService.updateMember(1, updatedMember);
 
         assertNotNull(result);
         assertEquals("Umair", result.getName());
