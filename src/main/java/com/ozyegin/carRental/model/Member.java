@@ -14,7 +14,19 @@ public class Member {
 
     @OneToMany(mappedBy = "member", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Reservation> reservations = new ArrayList<>();
-    
+
+    // Default constructor
+    public Member() {}
+
+    // Constructor without ID
+    public Member(String name, String address, String email, String phone, String drivingLicense) {
+        this.name = name;
+        this.address = address;
+        this.email = email;
+        this.phone = phone;
+        this.drivingLicense = drivingLicense;
+    }
+
     public String getName() {
         return name;
     }
