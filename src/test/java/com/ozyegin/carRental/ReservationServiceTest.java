@@ -1,3 +1,4 @@
+// ReservationServiceTest.java
 package com.ozyegin.carRental;
 
 import com.ozyegin.carRental.model.*;
@@ -48,18 +49,12 @@ public class ReservationServiceTest {
         serviceRepository.deleteAll();
     }
 
-
-
-    // TEST MAKE RESERVATION
     @Test
     void testMakeReservation() {
-        // Arrange
         String carBarcode = "123ABC";
         Integer dayCount = 2;
-        String pickupLocationCode = "LOC1";
-        String dropoffLocationCode = "LOC2";
-        List<Integer> equipmentIds = Arrays.asList(1, 2);
-        List<Integer> serviceIds = Arrays.asList(1, 2);
+        int pickupLocationCode = 1;
+        int dropOffLocationCode = 2;
         Date reservationDate = new Date();
         Date pickUpDate = new Date();
         Date dropOffDate = new Date();
@@ -78,7 +73,7 @@ public class ReservationServiceTest {
         locationRepository.save(pickupLocation);
 
         Location dropoffLocation = new Location();
-        dropoffLocation.setCode(dropoffLocationCode);
+        dropoffLocation.setCode(dropOffLocationCode);
         locationRepository.save(dropoffLocation);
 
         Equipment equipment1 = new Equipment();
@@ -97,28 +92,30 @@ public class ReservationServiceTest {
         service2.setPrice(40.0);
         serviceRepository.save(service2);
 
-        Reservation reservation = reservationService.makeReservation(carBarcode, dayCount, member.getId(), pickupLocationCode, dropoffLocationCode, equipmentIds, serviceIds, reservationDate, pickUpDate, dropOffDate);
+        List<Integer> equipmentIds = Arrays.asList(equipment1.getId(), equipment2.getId());
+        List<Integer> serviceIds = Arrays.asList(service1.getId(), service2.getId());
+
+        Reservation reservation = reservationService.makeReservation(carBarcode, dayCount, member.getId(), String.valueOf(pickupLocationCode), String.valueOf(dropOffLocationCode), equipmentIds, serviceIds, reservationDate, pickUpDate, dropOffDate);
+        Car updatedCar = carRepository.findById(car.getId()).orElseThrow(() -> new IllegalStateException("Car not found"));
 
         assertNotNull(reservation);
-        assertEquals("LOANED", car.getStatus());
+        assertEquals("LOANED", updatedCar.getStatus());
         assertEquals(car.getId(), reservation.getCar().getId());
         assertEquals(member.getId(), reservation.getMember().getId());
         assertEquals(2, reservation.getEquipment().size());
         assertEquals(2, reservation.getServices().size());
     }
 
-    // TEST ADD SERVICE TO RESERVATION
     @Test
     @Transactional
     void testAddServiceToReservation() {
-        // Arrange
         String reservationNumber = "12345678";
 
         Reservation reservation = new Reservation();
         reservation.setReservationNumber(reservationNumber);
         reservationRepository.save(reservation);
 
-        com.ozyegin.carRental.model.Service service = new com.ozyegin.carRental.model.Service();
+        Service service = new Service();
         service.setPrice(30.0);
         serviceRepository.save(service);
 
@@ -130,7 +127,6 @@ public class ReservationServiceTest {
         assertTrue(reservation.getServices().contains(service));
     }
 
-    // TEST ADD EQUIPMENT TO RESERVATION
     @Test
     @Transactional
     void testAddEquipmentToReservation() {
@@ -152,7 +148,6 @@ public class ReservationServiceTest {
         assertTrue(reservation.getEquipment().contains(equipment));
     }
 
-    // TEST RETURN CAR
     @Test
     void testReturnCar() {
         String reservationNumber = "12345678";
@@ -170,15 +165,15 @@ public class ReservationServiceTest {
         String result = reservationService.returnCar(reservationNumber, mileage);
 
         assertEquals("Car returned successfully", result);
-        car = carRepository.findById(car.getId()).orElse(null); // Fetch the car again to get the updated mileage
+        car = carRepository.findById(car.getId()).orElse(null);
         assertNotNull(car);
         assertEquals(1100, car.getMileage());
         assertEquals("AVAILABLE", car.getStatus());
+        reservation = reservationRepository.findByReservationNumber(reservationNumber).orElse(null);
+        assertNotNull(reservation);
         assertEquals("COMPLETED", reservation.getStatus());
     }
 
-    // TEST CANCEL RESERVATION
-    // TEST CANCEL RESERVATION
     @Test
     void testCancelReservation() {
         String reservationNumber = "12345678";
@@ -195,13 +190,14 @@ public class ReservationServiceTest {
         String result = reservationService.cancelReservation(reservationNumber);
 
         assertEquals("Reservation cancelled successfully", result);
-        reservation = reservationRepository.findByReservationNumber(reservationNumber).orElse(null); // Fetch the reservation again to get the updated status
+        reservation = reservationRepository.findByReservationNumber(reservationNumber).orElse(null);
         assertNotNull(reservation);
         assertEquals("CANCELLED", reservation.getStatus());
+        car = carRepository.findById(car.getId()).orElse(null);
+        assertNotNull(car);
         assertEquals("AVAILABLE", car.getStatus());
     }
 
-    // TEST DELETE RESERVATION
     @Test
     void testDeleteReservation() {
         String reservationNumber = "12345678";

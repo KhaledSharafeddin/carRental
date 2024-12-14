@@ -1,8 +1,12 @@
+// CarServiceTest.java
 package com.ozyegin.carRental;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +20,7 @@ import com.ozyegin.carRental.service.CarService;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class CarServiceTests {
+public class CarServiceTest {
 
     @Autowired
     private CarRepository carRepository;
@@ -45,6 +49,7 @@ public class CarServiceTests {
         carRepository.save(car);
 
         List<Car> availableCars = carService.searchAvailableCars("Standard", "Automatic");
+        assertNotNull(availableCars);
         assertEquals(1, availableCars.size());
         assertEquals("Mercedes", availableCars.get(0).getBrand());
     }
@@ -59,6 +64,7 @@ public class CarServiceTests {
         carRepository.save(car);
 
         List<Car> rentedCars = carService.getAllRentedCars();
+        assertNotNull(rentedCars);
         assertEquals(1, rentedCars.size());
         assertEquals("Mercedes", rentedCars.get(0).getBrand());
     }
@@ -72,5 +78,6 @@ public class CarServiceTests {
 
         String result = carService.deleteCar("999999");
         assertEquals("Car deleted successfully", result);
+        assertTrue(carRepository.findByBarcode("999999").isEmpty());
     }
 }

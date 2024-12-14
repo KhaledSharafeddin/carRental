@@ -5,5 +5,5 @@ import java.util.Optional;
 import com.ozyegin.carRental.model.Location;
 
 public interface LocationRepository extends JpaRepository<Location, Integer> {
-    Optional<Location> findByCode(String code);
+    Optional<Location> findByCode(Integer code);
 }

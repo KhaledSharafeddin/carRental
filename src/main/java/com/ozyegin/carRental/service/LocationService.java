@@ -7,6 +7,8 @@ import com.ozyegin.carRental.repository.LocationRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+
 @Service
 public class LocationService {
     private final LocationRepository locationRepository;
@@ -18,16 +20,29 @@ public class LocationService {
 
     public LocationOutputDTO addLocation(LocationInputDTO locationInputDTO) {
         Location location = new Location();
-        location.setCode(locationInputDTO.getCode());
         location.setName(locationInputDTO.getName());
-        location.setAddress(locationInputDTO.getAddress());
         location = locationRepository.save(location);
-        return mapToOutputDTO(location);
+
+        LocationOutputDTO locationOutputDTO = new LocationOutputDTO();
+        locationOutputDTO.setId(location.getId());
+        locationOutputDTO.setName(location.getName());
+
+        return locationOutputDTO;
     }
 
     public LocationOutputDTO getLocationByCode(String code) {
-        Location location = locationRepository.findById(Integer.valueOf(code)).orElseThrow(() -> new IllegalArgumentException("Location not found"));
-        return mapToOutputDTO(location);
+        Integer locationCode = Integer.valueOf(code);
+        Optional<Location> location = locationRepository.findByCode(locationCode);
+        if (location.isPresent()) {
+            Location loc = location.get();
+            LocationOutputDTO dto = new LocationOutputDTO();
+            dto.setId(loc.getId());
+            dto.setName(loc.getName());
+            dto.setCode(loc.getCode()); // Set the code field
+            return dto;
+        } else {
+            throw new IllegalArgumentException("Location not found");
+        }
     }
 
     public void deleteLocation(String code) {

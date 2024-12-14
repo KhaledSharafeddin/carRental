@@ -1,15 +1,7 @@
 package com.ozyegin.carRental.service;
-import com.ozyegin.carRental.model.Car;
-import com.ozyegin.carRental.model.Equipment;
-import com.ozyegin.carRental.model.Location;
-import com.ozyegin.carRental.model.Member;
-import com.ozyegin.carRental.model.Reservation;
-import com.ozyegin.carRental.repository.CarRepository;
-import com.ozyegin.carRental.repository.EquipmentRepository;
-import com.ozyegin.carRental.repository.LocationRepository;
-import com.ozyegin.carRental.repository.MemberRepository;
-import com.ozyegin.carRental.repository.ReservationRepository;
-import com.ozyegin.carRental.repository.ServiceRepository;
+
+import com.ozyegin.carRental.model.*;
+import com.ozyegin.carRental.repository.*;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -26,10 +18,10 @@ public class ReservationService {
     private final ReservationRepository reservationRepository;
 
     public ReservationService(CarRepository carRepository, MemberRepository memberRepository,
-            LocationRepository locationRepository,
-            EquipmentRepository equipmentRepository,
-            ServiceRepository serviceRepository,
-            ReservationRepository reservationRepository) {
+                              LocationRepository locationRepository,
+                              EquipmentRepository equipmentRepository,
+                              ServiceRepository serviceRepository,
+                              ReservationRepository reservationRepository) {
         this.carRepository = carRepository;
         this.memberRepository = memberRepository;
         this.locationRepository = locationRepository;
@@ -48,18 +40,21 @@ public class ReservationService {
             List<Integer> serviceIds,
             Date reservationDate,
             Date pickUpDate,
-            Date dropOffDate)
-    {
+            Date dropOffDate) {
+
         Car car = carRepository.findByBarcodeAndStatus(carBarcode, "AVAILABLE")
                 .orElseThrow(() -> new IllegalStateException("Car not available"));
 
         Member member = memberRepository.findById(memberId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid member ID"));
 
-        Location pickupLocation = locationRepository.findByCode(pickupLocationCode)
+        Integer pickupCode = Integer.valueOf(pickupLocationCode);
+        Integer dropoffCode = Integer.valueOf(dropoffLocationCode);
+
+        Location pickupLocation = locationRepository.findByCode(pickupCode)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid pickup location"));
 
-        Location dropoffLocation = locationRepository.findByCode(dropoffLocationCode)
+        Location dropoffLocation = locationRepository.findByCode(dropoffCode)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid dropoff location"));
 
         List<Equipment> equipment = equipmentIds != null ? equipmentRepository.findAllById(equipmentIds) : List.of();
@@ -102,7 +97,7 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
-        Service service = (Service) serviceRepository.findById(serviceId)
+        com.ozyegin.carRental.model.Service service = serviceRepository.findById(serviceId)
                 .orElseThrow(() -> new IllegalArgumentException("Service not found"));
 
         if (reservation.getServices().contains(service)) {
@@ -132,6 +127,7 @@ public class ReservationService {
 
         return true;
     }
+
     public String returnCar(String reservationNumber, int mileage) {
 
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
@@ -150,9 +146,7 @@ public class ReservationService {
         return "Car returned successfully";
     }
 
-    // Cancel Reservation
     public String cancelReservation(String reservationNumber) {
-        // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 
@@ -169,9 +163,7 @@ public class ReservationService {
         return "Reservation cancelled successfully";
     }
 
-    // Delete Reservation
     public String deleteReservation(String reservationNumber) {
-        // 1. Find the reservation by its number
         Reservation reservation = reservationRepository.findByReservationNumber(reservationNumber)
                 .orElseThrow(() -> new IllegalArgumentException("Reservation not found"));
 

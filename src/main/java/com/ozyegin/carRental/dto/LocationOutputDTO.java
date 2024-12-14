@@ -1,16 +1,25 @@
 package com.ozyegin.carRental.dto;
 
 public class LocationOutputDTO {
-    private String code;
+    private Integer id;
+    private int code;
     private String name;
     private String address;
 
     // Getters and Setters
-    public String getCode() {
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public int getCode() {
         return code;
     }
 
-    public void setCode(String code) {
+    public void setCode(int code) {
         this.code = code;
     }
 
