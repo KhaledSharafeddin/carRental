@@ -28,3 +28,6 @@ VALUES ('RES003', '2024-12-04', '2024-12-05 08:30:00', '2024-12-07 14:00:00', NU
 
 INSERT INTO service (name, price) 
 VALUES ('Tires change', 50.0)
+
+INSERT INTO service (name, price)
+VALUES ('Car Wash', 30.0)
